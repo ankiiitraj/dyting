@@ -16,14 +16,11 @@ async def upload_image(img_data):
         "image": img_data
     }
     
-    # Make API request
     async with AsyncClient() as client:
         response = await client.post("https://api.imgur.com/3/image", headers=headers, data=data)
         
-    # Check if request was successful
     if response.status_code != 200:
         raise HTTPException(status_code=500, detail="Could not upload image.")
 
     print(response.json())
-    # Return public link
     return response.json()["data"]["link"]

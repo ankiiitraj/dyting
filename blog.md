@@ -37,6 +37,11 @@ mkdir dyte-proctoring
 cd dyte-proctoring
 ```
 
+- We will also require an account of Imagur. Create an account on Imagur and create an API key. Here is a [step-by-step guide](https://apidocs.imgur.com/)
+- We will also require an account on ElephantSQL, here is a [step-by-step guide](https://www.elephantsql.com/docs/index.html) to create a db on ElephantSQL.
+
+Now back to the tutorial.
+
 ## Step 1: Setting up the frontend
 
 We will create a boilerplate React app using `create-react-app`. We can do this by running the following command:
@@ -349,7 +354,38 @@ mkdir backend
 cd backend
 ```
 
-Here, create a new file named `app.py` and add the following code to it:
+Let create a new file named `imagur.py` and add the following code, this will help us upload our screenshots to Imagur.
+```python
+import base64
+from fastapi import FastAPI, UploadFile, HTTPException
+from httpx import AsyncClient
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = FastAPI()
+IMGUR_CLIENT_ID = os.getenv("IMGUR_CLIENT_ID")
+
+async def upload_image(img_data):
+    headers = {
+        "Authorization": f"Client-ID {IMGUR_CLIENT_ID}"
+    }
+    data = {
+        "image": img_data
+    }
+    
+    async with AsyncClient() as client:
+        response = await client.post("https://api.imgur.com/3/image", headers=headers, data=data)
+        
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Could not upload image.")
+
+    print(response.json())
+    return response.json()["data"]["link"]
+```
+
+
+Now, we will create a new file named `app.py` and add the following code to it:
 
 ```python
 import base64
@@ -586,11 +622,14 @@ Now, we will create a `.env` and `requirements.txt` file in the `backend` direct
 
 `.env`
 ```txt
-DYTE_ORG_ID=9f8d30dc-5a51-492b-a911-862970e53ef5
-DYTE_API_KEY=35b1afa2ea4bee60ba8d
-IMGUR_CLIENT_ID=48f0caef7256b40
+DYTE_ORG_ID=<ID>
+DYTE_API_KEY=<KEY>
+IMGUR_CLIENT_ID=<ID>
+DB_USER=<ID>
+DB_PASSWORD=<PASSWORD>
+DB_HOST=<HOST>
 ```
-
+`requirements.txt`
 ```txt
 fastapi
 uvicorn
