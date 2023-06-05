@@ -191,5 +191,5 @@ async def add_participant(meetingId: str, participant: Participant):
         raise HTTPException(status_code=resp.status_code, detail=resp.text)
     return resp.text
 
-if __name__ == "__main__":
-    uvicorn.run("app:app", host="localhost", port=int(os.getenv("PORT")), log_level="debug", reload=True)
+# if __name__ == "__main__":
+#     uvicorn.run("app:app", host="localhost", port=int(os.getenv("PORT")), log_level="debug", reload=True)
