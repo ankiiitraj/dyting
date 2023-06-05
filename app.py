@@ -192,4 +192,4 @@ async def add_participant(meetingId: str, participant: Participant):
     return resp.text
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="localhost", port=8000, log_level="debug", reload=True)
+    uvicorn.run("app:app", host="localhost", port=os.getenv("PORT"), log_level="debug", reload=True)
