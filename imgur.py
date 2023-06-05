@@ -2,6 +2,7 @@ import base64
 from fastapi import FastAPI, UploadFile, HTTPException
 from httpx import AsyncClient
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
