@@ -3,6 +3,7 @@ import Meet from './Meet';
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import './App.css'
 
+const SERVER_URL = process.env.SERVER_URL || "https://dyte-proc.herokuapp.com"
 
 function Home({ meetingId }) {
     return (
@@ -17,7 +18,7 @@ function App() {
     const [meetingId, setMeetingId] = useState()
 
     const createMeeting = async () => {
-        const res = await fetch("http://localhost:8000/meetings", {
+        const res = await fetch(`${SERVER_URL}/meetings`, {
             method: "POST",
             body: JSON.stringify({ title: "Joint Entrance Examination" }),
             headers: { "Content-Type": "application/json" }

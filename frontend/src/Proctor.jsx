@@ -3,6 +3,7 @@ import { getCandidateStatus } from "./utils";
 
 const Proctor = () => {
     const [candidateStatuses, updateCandidateStatusState] = useState([])
+    const [error, setError] = useState('')
 
     const updateCandidateStatus = async () => {
         try {
@@ -37,7 +38,7 @@ const Proctor = () => {
                             <img src="https://images.yourstory.com/cs/images/companies/Dyte-1608553297314.jpg" style={{ borderRadius: "50px", height: "60px", border: "1px double lightblue" }} />
                         </div>
                         <div style={{ textAlign: "center", padding: "10px", backgroundColor: "#2160fd", fontSize: "x-large", fontWeight: "bold", borderRadius: "10px 10px 10px 10px", width: "50vw",  }} >
-                            <div style={{ color: "white", padding: "20px 0px" }}>{status[4]}</div>
+                            <div style={{ color: "white", padding: "20px 0px" }}>{status[4].split('<>').map(text => <div>{text}</div>)}</div>
                             <img style={{ borderRadius: "10px" }} src={status[3]} />
                         </div>
                     </div>) : <div style={{ color: "white" }}>Wait or check if you have admin privileges to access the proctoring dashboard.</div>}

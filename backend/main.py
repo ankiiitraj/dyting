@@ -147,7 +147,7 @@ async def detect_faces(participant: ParticipantScreen):
 
         cur.execute("CREATE TABLE IF NOT EXISTS meeting_proc_details (ts TIMESTAMP, meeting_id VARCHAR(255), participant_id VARCHAR(255), img_url VARCHAR(255), verdict VARCHAR(255))")
 
-        verdict = f"Detected more than one face for participant \"{participant.participant_name}\" and participant_id {participant.participant_id}"
+        verdict = f"Participant Name: {participant.participant_name} <> Anomaly: Multiple Faces Detected <> Participant ID: {participant.participant_id}"
         cur.execute("INSERT INTO meeting_proc_details (ts, meeting_id, participant_id, img_url, verdict) VALUES (current_timestamp, %s, %s, %s, %s)", (participant.meeting_id, participant.participant_id, upload_resp, verdict))
 
         conn.commit()

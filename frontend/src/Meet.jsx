@@ -7,8 +7,9 @@ import Proctor from './Proctor';
 import Heading from './Heading';
 import {SendImageToBackendMiddleware, joinMeeting} from './utils' 
 // Constants
+const SERVER_URL = process.env.SERVER_URL || "https://dyte-proc.herokuapp.com"
 let LAST_BACKEND_PING_TIME = 0;
-const DETECT_FACES_ENDPOINT = 'http://localhost:8000/detect_faces';
+const DETECT_FACES_ENDPOINT = `${SERVER_URL}/detect_faces`;
 const TIME_BETWEEN_BACKEND_PINGS = 30000;
 
 const Meet = () => {
@@ -18,10 +19,40 @@ const Meet = () => {
     const [isAdminBool, setAdminBool] = useState(null);
     const meetingId = window.location.pathname.split('/')[2]
 
+    function SendImageToBackendMiddleware() {
+        return async (canvas, ctx) => {
+            const currentTime = Date.now();            
+            if (currentTime - LAST_BACKEND_PING_TIME > TIME_BETWEEN_BACKEND_PINGS) {
+                LAST_BACKEND_PING_TIME = currentTime;
+                const imgBase64String = canvas.toDataURL('image/png');
+                const response = await fetch(DETECT_FACES_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        base64_img: imgBase64String,
+                        participant_id: meeting?.self.id,
+                        participant_name: meeting?.self.name,
+                        meeting_id: meetingId
+                    }),
+                });
+                const res = await response.json();
+                if (res['multiple_detected']) {
+                    console.log('Warning: Multiple faces detected!');
+                    sendNotification({
+                        id: 'multiple_faces_detected',
+                        message: 'Warning: Multiple faces detected!',
+                    });
+                }
+            }
+        };
+    }
+
     const isAdmin = async (id) => {
-        const res = await fetch(`http://localhost:8000/is_admin`, {
+        const res = await fetch(`${SERVER_URL}/is_admin`, {
             method: "POST",
-            body: JSON.stringify({ admin_id: window.localStorage.getItem("adminId"), meeting_id: meetingId }),
+            body: JSON.stringify({ admin_id: window.localStorage.getItem("adminId") || '', meeting_id: meetingId || '' }),
             headers: { "Content-Type": "application/json" }
         })
         const resJson = await res.json()
@@ -53,6 +84,7 @@ const Meet = () => {
     
     useEffect(() => {
         if(isAdminBool === false && meeting?.self) {
+            console.log("triggered")
             meeting.self.addVideoMiddleware(SendImageToBackendMiddleware);
         }
     }, [isAdminBool])
