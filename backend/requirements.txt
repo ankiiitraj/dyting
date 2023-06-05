@@ -1,3 +1,4 @@
+cmakr
 fastapi
 uvicorn
 face_recognition
