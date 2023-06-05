@@ -1,4 +1,4 @@
-cmakr
+cmake
 fastapi
 uvicorn
 face_recognition
