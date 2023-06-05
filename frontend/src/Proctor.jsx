@@ -1,26 +1,8 @@
 import { useEffect, useState } from "react";
+import { getCandidateStatus } from "./utils";
 
-
-
-const Proctor = ({ meeting }) => {
+const Proctor = () => {
     const [candidateStatuses, updateCandidateStatusState] = useState([])
-
-    const getCandidateStatus = async () => {
-        const response = await fetch("http://localhost:8000/multiple_faces_list", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                meeting_id: window.location.pathname.split('/')[2],
-                admin_id: window.localStorage.getItem("adminId") || "undefined"
-            })
-        });
-        const res = await response.json()
-        if(res.details) return undefined
-        console.log(res)
-        return res
-    }
 
     const updateCandidateStatus = async () => {
         try {

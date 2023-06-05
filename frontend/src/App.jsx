@@ -17,15 +17,14 @@ function App() {
     const [meetingId, setMeetingId] = useState()
 
     const createMeeting = async () => {
-        const resp = await fetch("http://localhost:8000/meetings", {
+        const res = await fetch("http://localhost:8000/meetings", {
             method: "POST",
             body: JSON.stringify({ title: "Joint Entrance Examination" }),
             headers: { "Content-Type": "application/json" }
         })
-        const respJson = await resp.json()
-        console.log(respJson)
-        window.localStorage.setItem("adminId", respJson.admin_id)
-        setMeetingId(respJson.data.id)
+        const resJson = await res.json()
+        window.localStorage.setItem("adminId", resJson.admin_id)
+        setMeetingId(resJson.data.id)
     }
 
     useEffect(() => {

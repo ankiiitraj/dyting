@@ -5,20 +5,17 @@ import random
 
 
 import uvicorn
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from imgur import upload_image
 import face_recognition
 import psycopg2
-import json
 
 import os
 import base64
 from fastapi import FastAPI, HTTPException
-from starlette.responses import RedirectResponse
 from pydantic import BaseModel
-from typing import Optional
 from dotenv import load_dotenv
 from httpx import AsyncClient
 import uuid
@@ -34,14 +31,11 @@ DYTE_API = AsyncClient(base_url='https://api.cluster.dyte.in/v2', headers={'Auth
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-# save logs to a file
+
 fh = logging.FileHandler("app.log")
 fh.setLevel(logging.DEBUG)
-# create formatter
 formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-# add formatter to fh
 fh.setFormatter(formatter)
-# add fh to logger
 logger.addHandler(fh)
 
 
@@ -59,6 +53,14 @@ class AdminProp(BaseModel):
     meeting_id: str
     admin_id: str
 
+class Meeting(BaseModel):
+    title: str
+
+class Participant(BaseModel):
+    name: str
+    preset_name: str
+    meeting_id: str
+
 origins = [
     # allow all
     "*",
@@ -75,13 +77,7 @@ app.add_middleware(
     allow_headers=["*"],  # allow all
 )
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-@app.post("/is_admin/")
-async def multiple_faces_list(admin: AdminProp):
+def connect_to_db():
     conn = psycopg2.connect(
             dbname=os.getenv('DB_USER'), 
             user=os.getenv('DB_USER'), 
@@ -89,6 +85,15 @@ async def multiple_faces_list(admin: AdminProp):
             host=os.getenv('DB_HOST'),
             port=5432
     )
+    return conn
+
+@app.get("/")
+async def root():
+    return {"message": "Hello World"}
+
+@app.post("/is_admin/")
+async def multiple_faces_list(admin: AdminProp):
+    conn = connect_to_db()
     cur = conn.cursor()
     cur.execute("SELECT count(1) FROM meeting_host_info WHERE meeting_id = %s AND admin_id = %s", (admin.meeting_id, admin.admin_id,))
     
@@ -99,18 +104,9 @@ async def multiple_faces_list(admin: AdminProp):
     else:
         return { "admin": False }
 
-
-
-
 @app.post("/multiple_faces_list/")
 async def multiple_faces_list(meeting: ProctorPayload):
-    conn = psycopg2.connect(
-            dbname=os.getenv('DB_USER'), 
-            user=os.getenv('DB_USER'), 
-            password=os.getenv('DB_PASSWORD'),
-            host=os.getenv('DB_HOST'),
-            port=5432
-    )
+    conn = connect_to_db()
     cur = conn.cursor()
     cur.execute("SELECT count(1) FROM meeting_host_info WHERE meeting_id = %s AND admin_id = %s", (meeting.meeting_id, meeting.admin_id,))
     
@@ -129,10 +125,6 @@ async def multiple_faces_list(meeting: ProctorPayload):
         conn.close()
         raise HTTPException(status_code=401, detail="Participant dose not has admin role")
 
-
-    
-
-
 @app.post("/detect_faces/")
 async def detect_faces(participant: ParticipantScreen):
     img_data = participant.base64_img.split(",")[1]
@@ -150,13 +142,7 @@ async def detect_faces(participant: ParticipantScreen):
 
         upload_resp = await upload_image(img_data)
 
-        conn = psycopg2.connect(
-            dbname=os.getenv('DB_USER'), 
-            user=os.getenv('DB_USER'), 
-            password=os.getenv('DB_PASSWORD'),
-            host=os.getenv('DB_HOST'),
-            port=5432
-        )
+        conn = connect_to_db()
         cur = conn.cursor()
 
         cur.execute("CREATE TABLE IF NOT EXISTS meeting_proc_details (ts TIMESTAMP, meeting_id VARCHAR(255), participant_id VARCHAR(255), img_url VARCHAR(255), verdict VARCHAR(255))")
@@ -174,16 +160,6 @@ async def detect_faces(participant: ParticipantScreen):
     return {"id": participant.participant_id, "multiple_detected": False}
 
 
-class Meeting(BaseModel):
-    title: str
-
-
-class Participant(BaseModel):
-    name: str
-    preset_name: str
-    meeting_id: str
-
-
 @app.post("/meetings")
 async def create_meeting(meeting: Meeting):
     response = await DYTE_API.post('/meetings', json=meeting.dict())
@@ -194,13 +170,7 @@ async def create_meeting(meeting: Meeting):
     resp_json['admin_id'] = admin_id
     meeting_id = resp_json['data']['id']
 
-    conn = psycopg2.connect(
-            dbname=os.getenv('DB_USER'), 
-            user=os.getenv('DB_USER'), 
-            password=os.getenv('DB_PASSWORD'),
-            host=os.getenv('DB_HOST'),
-            port=5432
-    )
+    conn = connect_to_db()
     cur = conn.cursor()
     cur.execute("INSERT INTO meeting_host_info (ts, meeting_id, admin_id) VALUES (CURRENT_TIMESTAMP, %s, %s)", (meeting_id, admin_id))
     conn.commit()
