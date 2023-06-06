@@ -1,4 +1,4 @@
-const SERVER_URL = process.env.SERVER_URL || "https://dyte-proc.herokuapp.com"
+const SERVER_URL = process.env.SERVER_URL || "http://localhost:8000"
 
 const joinMeeting = async (id) => {
     const res = await fetch(`${SERVER_URL}/meetings/${id}/participants`, {

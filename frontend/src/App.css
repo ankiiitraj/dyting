@@ -31,12 +31,7 @@
 .heading-proctor {
   font-size: x-large;
   font-weight: bolder;
-  color: #2196f3;
-  background-image: -webkit-linear-gradient(0deg, #2196f3 11%, #7354a8 36%, #d900ff 86%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  text-fill-color: transparent;
-  -webkit-text-fill-color: transparent;
+  color: #fff;
 }
 
 @keyframes App-logo-spin {

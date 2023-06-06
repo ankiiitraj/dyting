@@ -4,7 +4,7 @@ uvicorn
 face_recognition
 numpy
 python-multipart
-psycopg2
+psycopg2-binary
 httpx
 python-dotenv
 pydantic

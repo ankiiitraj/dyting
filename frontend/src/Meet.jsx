@@ -7,10 +7,10 @@ import Proctor from './Proctor';
 import Heading from './Heading';
 import {SendImageToBackendMiddleware, joinMeeting} from './utils' 
 // Constants
-const SERVER_URL = process.env.SERVER_URL || "https://dyte-proc.herokuapp.com"
+const SERVER_URL = process.env.SERVER_URL || "http://localhost:8000"
 let LAST_BACKEND_PING_TIME = 0;
 const DETECT_FACES_ENDPOINT = `${SERVER_URL}/detect_faces`;
-const TIME_BETWEEN_BACKEND_PINGS = 30000;
+const TIME_BETWEEN_BACKEND_PINGS = 10000;
 
 const Meet = () => {
     const meetingEl = useRef();
@@ -84,10 +84,9 @@ const Meet = () => {
     
     useEffect(() => {
         if(isAdminBool === false && meeting?.self) {
-            console.log("triggered")
             meeting.self.addVideoMiddleware(SendImageToBackendMiddleware);
         }
-    }, [isAdminBool])
+    }, [meeting?.self])
 
     return (
         <div style={{ height: "96vh", width: "100vw", display: "flex" }}>

@@ -3,7 +3,7 @@ import Meet from './Meet';
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import './App.css'
 
-const SERVER_URL = process.env.SERVER_URL || "https://dyte-proc.herokuapp.com"
+const SERVER_URL = process.env.SERVER_URL || "http://localhost:8000"
 
 function Home({ meetingId }) {
     return (
