@@ -10,7 +10,7 @@ import {SendImageToBackendMiddleware, joinMeeting} from './utils'
 const SERVER_URL = process.env.SERVER_URL || "http://localhost:8000"
 let LAST_BACKEND_PING_TIME = 0;
 const DETECT_FACES_ENDPOINT = `${SERVER_URL}/detect_faces`;
-const TIME_BETWEEN_BACKEND_PINGS = 10000;
+const TIME_BETWEEN_BACKEND_PINGS = 2000;
 
 const Meet = () => {
     const meetingEl = useRef();
